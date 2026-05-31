@@ -68,7 +68,7 @@ function buildFivemPanelHtml(current, max) {
         'width:' +
         pct +
         '%' +
-        (safeCurrent > 0 && pct < 2 ? ';min-width:6px' : '');
+        (safeCurrent > 0 && pct < 2 ? ';min-width:8px' : '');
 
     return (
         '<div class="fivem-panel fivem-panel--online">' +
@@ -201,7 +201,6 @@ function renderFivem(fivem) {
     }
     section.hidden = false;
 
-    const st = SITE_STATUS[fivem.status] || SITE_STATUS.unknown;
     const panelHtml =
         fivem.status === 'up'
             ? buildFivemPanelHtml(fivem.clients, fivem.maxClients)
@@ -215,50 +214,42 @@ function renderFivem(fivem) {
 
     let playersHtml = '';
     if (fivem.players && fivem.players.length) {
-        const rows = fivem.players
-            .slice(0, 24)
-            .map(function (p) {
-                const ping = p.ping != null ? p.ping + ' ms' : '—';
-                return (
-                    '<li class="fivem-player">' +
-                    '<span class="fivem-player-name">' +
-                    escapeHtml(p.name) +
-                    '</span>' +
-                    '<span class="fivem-player-ping">' +
-                    escapeHtml(ping) +
-                    '</span></li>'
-                );
-            })
-            .join('');
-        const more =
-            fivem.clients > fivem.players.length
-                ? '<li class="fivem-player fivem-player-more">+' +
-                  (fivem.clients - fivem.players.length) +
-                  ' niet zichtbaar in lijst</li>'
-                : '';
         playersHtml =
             '<ul class="fivem-player-list">' +
-            rows +
-            more +
+            fivem.players
+                .slice(0, 24)
+                .map(function (p) {
+                    const ping = p.ping != null ? p.ping + ' ms' : '—';
+                    return (
+                        '<li class="fivem-player">' +
+                        '<span class="fivem-player-name">' +
+                        escapeHtml(p.name) +
+                        '</span>' +
+                        '<span class="fivem-player-ping">' +
+                        escapeHtml(ping) +
+                        '</span></li>'
+                    );
+                })
+                .join('') +
             '</ul>';
-    } else if (fivem.status === 'up' && fivem.clients === 0) {
-        playersHtml = '<p class="fivem-empty">Geen spelers online</p>';
     }
 
     card.innerHTML =
-        '<div class="fivem-block">' +
-        '<div class="fivem-block-head">' +
-        '<h2 class="fivem-block-title">' + escapeHtml(fivem.name) + '</h2>' +
-        '<span class="status-pill ' + st.className + '">' +
-        '<span class="status-dot-sm"></span>' + escapeHtml(st.label) +
-        '</span></div>' +
+        '<article class="fivem-showcase" data-ui="fivem-v3">' +
         panelHtml +
-        '<p class="fivem-meta">' + metaBits.join(' · ') + '</p>' +
+        '<div class="fivem-showcase-extra">' +
+        '<p class="fivem-meta">' +
+        metaBits.join(' · ') +
+        '</p>' +
         playersHtml +
-        '<a class="fivem-connect-btn" href="' + escapeHtml(fivem.connectUrl) + '">' +
+        '<div class="fivem-showcase-actions">' +
+        '<a class="fivem-connect-btn" href="' +
+        escapeHtml(fivem.connectUrl) +
+        '">' +
         '<i class="fas fa-play"></i> Verbinden in FiveM</a>' +
-        '<span class="fivem-latency">' + escapeHtml(formatLatency(fivem.latencyMs)) + '</span>' +
-        '</div>';
+        '<span class="fivem-latency-tag">' +
+        escapeHtml(formatLatency(fivem.latencyMs)) +
+        '</span></div></div></article>';
 }
 
 async function loadStatus() {

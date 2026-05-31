@@ -1,5 +1,5 @@
 {
-  "installCommand": "",
+  "installCommand": "npm install",
   "buildCommand": null,
   "outputDirectory": ".",
   "crons": [

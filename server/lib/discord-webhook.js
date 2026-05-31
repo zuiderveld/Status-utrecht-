@@ -1,11 +1,20 @@
 function parseWebhookUrl(url) {
-  const trimmed = (url || '').trim();
-  const m = trimmed.match(/discord\.com\/api\/webhooks\/(\d+)\/([^/?#]+)/i);
+  const trimmed = (url || '').trim().replace(/\/+$/, '');
+  const m = trimmed.match(/(?:canary\.)?discord\.com\/api\/webhooks\/(\d+)\/([^/?#]+)/i);
   if (!m) return null;
   return { id: m[1], token: m[2] };
 }
 
-async function postWebhookMessage(webhook, payload) {
+function normalizeWebhookUrl(url) {
+  const w = parseWebhookUrl(url);
+  if (!w) return null;
+  return `https://discord.com/api/webhooks/${w.id}/${w.token}`;
+}
+
+async function postWebhookMessage(webhookOrUrl, payload) {
+  const webhook =
+    typeof webhookOrUrl === 'string' ? parseWebhookUrl(webhookOrUrl) : webhookOrUrl;
+  if (!webhook) throw new Error('Ongeldige webhook URL');
   const url = `https://discord.com/api/v10/webhooks/${webhook.id}/${webhook.token}?wait=true`;
   const res = await fetch(url, {
     method: 'POST',
@@ -35,7 +44,11 @@ async function patchWebhookMessage(webhook, messageId, payload) {
 
 async function upsertStatusMessage(webhookUrl, messageId, payload) {
   const webhook = parseWebhookUrl(webhookUrl);
-  if (!webhook) throw new Error('Ongeldige DISCORD_STATUS_WEBHOOK_URL');
+  if (!webhook) {
+    throw new Error(
+      'Ongeldige DISCORD_STATUS_WEBHOOK_URL. Gebruik de volledige URL van Discord (discord.com of canary.discord.com).'
+    );
+  }
 
   if (messageId) {
     return patchWebhookMessage(webhook, messageId, payload);
@@ -45,5 +58,7 @@ async function upsertStatusMessage(webhookUrl, messageId, payload) {
 
 module.exports = {
   parseWebhookUrl,
+  normalizeWebhookUrl,
+  postWebhookMessage,
   upsertStatusMessage,
 };

@@ -44,6 +44,14 @@ Geen secrets nodig voor de statuspagina zelf.
 
 ---
 
+## Discord status-bericht
+
+Zie **`DISCORD.md`**: webhook + embed met websites, FiveM en **spelersbalk** (🟩⬛), elke 5 min automatisch via cron.
+
+API: `/api/discord-status` (2e serverless function — past nog op Hobby).
+
+---
+
 ## Lokaal testen
 
 ```powershell

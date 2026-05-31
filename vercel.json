@@ -1,5 +1,11 @@
 {
   "installCommand": "",
   "buildCommand": null,
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "crons": [
+    {
+      "path": "/api/discord-status",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }

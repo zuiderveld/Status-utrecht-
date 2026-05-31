@@ -50,6 +50,32 @@ function iconClass(name) {
     return map[name] || 'fa-circle';
 }
 
+function buildPlayerBarHtml(current, max) {
+    const safeMax = max && max > 0 ? max : 128;
+    const safeCurrent = Math.max(0, Number(current) || 0);
+    const pct = Math.min(100, Math.round((safeCurrent / safeMax) * 100));
+    return (
+        '<div class="fivem-bar-wrap">' +
+        '<div class="fivem-bar-head">' +
+        '<span class="fivem-bar-online"><i class="fas fa-wifi"></i> ONLINE</span>' +
+        '<span class="fivem-bar-count">' +
+        escapeHtml(String(safeCurrent)) +
+        ' / ' +
+        escapeHtml(String(safeMax)) +
+        '</span></div>' +
+        '<p class="fivem-bar-label"><i class="fas fa-users"></i> Spelers online</p>' +
+        '<div class="fivem-bar-track" role="progressbar" aria-valuenow="' +
+        pct +
+        '" aria-valuemin="0" aria-valuemax="100">' +
+        '<div class="fivem-bar-fill" style="width:' +
+        pct +
+        '%"></div></div>' +
+        '<div class="fivem-bar-scale"><span>0</span><span>' +
+        escapeHtml(String(safeMax)) +
+        '</span></div></div>'
+    );
+}
+
 function setBanner(overall, checkedAt, fivem) {
     const banner = document.getElementById('statusBanner');
     const title = document.getElementById('bannerTitle');
@@ -130,12 +156,12 @@ function renderFivem(fivem) {
     section.hidden = false;
 
     const st = SITE_STATUS[fivem.status] || SITE_STATUS.unknown;
-    const playerLine =
-        fivem.status === 'up' && fivem.maxClients != null
-            ? fivem.clients + ' / ' + fivem.maxClients + ' spelers'
-            : fivem.status === 'up'
-              ? fivem.clients + ' speler' + (fivem.clients === 1 ? '' : 's')
-              : escapeHtml(fivem.error || 'Offline');
+    const barHtml =
+        fivem.status === 'up'
+            ? buildPlayerBarHtml(fivem.clients, fivem.maxClients)
+            : '<p class="fivem-offline-msg"><i class="fas fa-circle-xmark"></i> ' +
+              escapeHtml(fivem.error || 'Offline') +
+              '</p>';
 
     const metaBits = [];
     if (fivem.hostname) metaBits.push(escapeHtml(fivem.hostname));
@@ -182,9 +208,7 @@ function renderFivem(fivem) {
         '<h2>' +
         escapeHtml(fivem.name) +
         '</h2>' +
-        '<p class="fivem-players-count">' +
-        playerLine +
-        '</p>' +
+        barHtml +
         '<p class="fivem-meta">' +
         metaBits.join(' · ') +
         '</p>' +

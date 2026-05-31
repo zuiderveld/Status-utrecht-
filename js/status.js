@@ -50,29 +50,75 @@ function iconClass(name) {
     return map[name] || 'fa-circle';
 }
 
-function buildPlayerBarHtml(current, max) {
+function signalBarsHtml(percent) {
+    const lit = Math.min(4, Math.max(1, Math.ceil(percent / 25)));
+    let html = '<div class="fivem-signal" aria-hidden="true">';
+    for (let i = 1; i <= 4; i++) {
+        html += '<span class="fivem-signal-bar' + (i <= lit ? ' is-lit' : '') + '"></span>';
+    }
+    return html + '</div>';
+}
+
+function buildFivemPanelHtml(current, max) {
     const safeMax = max && max > 0 ? max : 128;
     const safeCurrent = Math.max(0, Number(current) || 0);
-    const pct = Math.min(100, Math.round((safeCurrent / safeMax) * 100));
+    const pct = Math.min(100, Math.max(0, (safeCurrent / safeMax) * 100));
+    const pctRounded = Math.round(pct);
+    const fillStyle =
+        'width:' +
+        pct +
+        '%' +
+        (safeCurrent > 0 && pct < 2 ? ';min-width:6px' : '');
+
     return (
-        '<div class="fivem-bar-wrap">' +
-        '<div class="fivem-bar-head">' +
-        '<span class="fivem-bar-online"><i class="fas fa-wifi"></i> ONLINE</span>' +
-        '<span class="fivem-bar-count">' +
+        '<div class="fivem-panel fivem-panel--online">' +
+        '<div class="fivem-panel-top">' +
+        '<div class="fivem-panel-status">' +
+        '<i class="fas fa-wifi" aria-hidden="true"></i>' +
+        '<span class="fivem-status-dot" aria-hidden="true"></span>' +
+        '<span class="fivem-status-text">ONLINE</span></div>' +
+        signalBarsHtml(pctRounded) +
+        '</div>' +
+        '<div class="fivem-panel-count" aria-label="' +
+        safeCurrent +
+        ' van ' +
+        safeMax +
+        ' spelers">' +
+        '<span class="fivem-count-current">' +
         escapeHtml(String(safeCurrent)) +
-        ' / ' +
+        '</span>' +
+        '<span class="fivem-count-sep">/</span>' +
+        '<span class="fivem-count-max">' +
         escapeHtml(String(safeMax)) +
         '</span></div>' +
-        '<p class="fivem-bar-label"><i class="fas fa-users"></i> Spelers online</p>' +
+        '<p class="fivem-panel-label"><i class="fas fa-users" aria-hidden="true"></i> Spelers online</p>' +
+        '<div class="fivem-bar-block">' +
         '<div class="fivem-bar-track" role="progressbar" aria-valuenow="' +
-        pct +
-        '" aria-valuemin="0" aria-valuemax="100">' +
-        '<div class="fivem-bar-fill" style="width:' +
-        pct +
-        '%"></div></div>' +
+        pctRounded +
+        '" aria-valuemin="0" aria-valuemax="100" aria-label="Bezetting">' +
+        '<div class="fivem-bar-fill" style="' +
+        fillStyle +
+        '"></div></div>' +
         '<div class="fivem-bar-scale"><span>0</span><span>' +
         escapeHtml(String(safeMax)) +
-        '</span></div></div>'
+        '</span></div></div></div>'
+    );
+}
+
+function buildFivemOfflinePanel(error) {
+    return (
+        '<div class="fivem-panel fivem-panel--offline">' +
+        '<div class="fivem-panel-top">' +
+        '<div class="fivem-panel-status fivem-panel-status--off">' +
+        '<i class="fas fa-wifi" aria-hidden="true"></i>' +
+        '<span class="fivem-status-text">OFFLINE</span></div>' +
+        '<div class="fivem-signal" aria-hidden="true">' +
+        '<span class="fivem-signal-bar"></span><span class="fivem-signal-bar"></span>' +
+        '<span class="fivem-signal-bar"></span><span class="fivem-signal-bar"></span></div>' +
+        '</div>' +
+        '<p class="fivem-offline-detail">' +
+        escapeHtml(error || 'Server niet bereikbaar') +
+        '</p></div>'
     );
 }
 
@@ -156,12 +202,10 @@ function renderFivem(fivem) {
     section.hidden = false;
 
     const st = SITE_STATUS[fivem.status] || SITE_STATUS.unknown;
-    const barHtml =
+    const panelHtml =
         fivem.status === 'up'
-            ? buildPlayerBarHtml(fivem.clients, fivem.maxClients)
-            : '<p class="fivem-offline-msg"><i class="fas fa-circle-xmark"></i> ' +
-              escapeHtml(fivem.error || 'Offline') +
-              '</p>';
+            ? buildFivemPanelHtml(fivem.clients, fivem.maxClients)
+            : buildFivemOfflinePanel(fivem.error);
 
     const metaBits = [];
     if (fivem.hostname) metaBits.push(escapeHtml(fivem.hostname));
@@ -202,30 +246,19 @@ function renderFivem(fivem) {
     }
 
     card.innerHTML =
-        '<div class="status-card fivem-card">' +
-        '<div class="status-card-icon"><i class="fas fa-server"></i></div>' +
-        '<div class="status-card-body">' +
-        '<h2>' +
-        escapeHtml(fivem.name) +
-        '</h2>' +
-        barHtml +
-        '<p class="fivem-meta">' +
-        metaBits.join(' · ') +
-        '</p>' +
+        '<div class="fivem-block">' +
+        '<div class="fivem-block-head">' +
+        '<h2 class="fivem-block-title">' + escapeHtml(fivem.name) + '</h2>' +
+        '<span class="status-pill ' + st.className + '">' +
+        '<span class="status-dot-sm"></span>' + escapeHtml(st.label) +
+        '</span></div>' +
+        panelHtml +
+        '<p class="fivem-meta">' + metaBits.join(' · ') + '</p>' +
         playersHtml +
-        '<a class="fivem-connect-btn" href="' +
-        escapeHtml(fivem.connectUrl) +
-        '"><i class="fas fa-play"></i> Verbinden in FiveM</a>' +
-        '</div>' +
-        '<div class="status-card-meta">' +
-        '<span class="status-pill ' +
-        st.className +
-        '"><span class="status-dot-sm"></span>' +
-        escapeHtml(st.label) +
-        '</span>' +
-        '<span class="status-latency">' +
-        escapeHtml(formatLatency(fivem.latencyMs)) +
-        '</span></div></div>';
+        '<a class="fivem-connect-btn" href="' + escapeHtml(fivem.connectUrl) + '">' +
+        '<i class="fas fa-play"></i> Verbinden in FiveM</a>' +
+        '<span class="fivem-latency">' + escapeHtml(formatLatency(fivem.latencyMs)) + '</span>' +
+        '</div>';
 }
 
 async function loadStatus() {

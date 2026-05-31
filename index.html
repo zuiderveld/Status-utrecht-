@@ -95,6 +95,13 @@
         }
         .fivem-hero .fivem-player-name { color: #eef2ff; }
         .fivem-hero .fivem-player-ping { color: #6b7280; font-size: 0.75rem; }
+        .build-tag {
+            margin-top: 0.5rem; font-size: 0.72rem; color: #4ade80;
+            background: rgba(74, 222, 128, 0.1); padding: 0.25rem 0.6rem; border-radius: 8px;
+        }
+        .build-tag code { color: #86efac; }
+        /* Oude FiveM-layout verbergen als oude JS/CSS nog cached is */
+        .fivem-block-head, .fivem-showcase, .fivem-players-count { display: none !important; }
     </style>
 </head>
 <body>
@@ -104,6 +111,7 @@
         <img src="/assets/favicon.png" alt="Utrecht Roleplay">
         <h1>URP <span>Status</span></h1>
         <p>Live FiveM-server en website-status</p>
+        <p class="build-tag">UI build 5 — zie je dit niet? Upload <code>index.html</code> opnieuw op GitHub.</p>
     </header>
 
     <div id="statusError" class="status-error-box" role="alert"></div>
@@ -134,6 +142,37 @@
         <a href="https://www.utrechtroleplay.eu">Utrecht Roleplay</a>
     </footer>
 </div>
-<script src="/js/status.js?v=4"></script>
+<script src="/js/status.js?v=5"></script>
+<script>
+/* Fallback: als externe JS oud/cached is, forceer nieuwe FiveM-kaart */
+(function () {
+    var orig = window.renderFivem;
+    if (typeof orig !== 'function') return;
+    window.renderFivem = function (fivem) {
+        orig(fivem);
+        var card = document.getElementById('fivemCard');
+        if (!card || !fivem || !fivem.enabled) return;
+        if (card.querySelector('.fivem-count-current')) return;
+        var s = fivem.status === 'up';
+        var c = fivem.clients || 0;
+        var m = fivem.maxClients || 128;
+        var pct = Math.min(100, (c / m) * 100);
+        var fill = 'width:' + pct + '%' + (c > 0 && pct < 2 ? ';min-width:8px' : '');
+        var bars = '';
+        for (var i = 1; i <= 5; i++) bars += '<span class="fivem-signal-bar' + (s && i <= Math.max(1, Math.ceil(pct / 20)) ? ' is-lit' : '') + '"></span>';
+        card.innerHTML =
+            '<div class="fivem-hero-card" data-ui="fivem-v5">' +
+            '<div class="fivem-panel fivem-panel--' + (s ? 'online' : 'offline') + '">' +
+            '<div class="fivem-panel-top"><div class="fivem-panel-status' + (s ? '' : ' fivem-panel-status--off') + '">' +
+            '<i class="fas fa-wifi"></i><span class="fivem-status-dot"></span><span class="fivem-status-text">' + (s ? 'ONLINE' : 'OFFLINE') + '</span></div>' +
+            '<div class="fivem-signal">' + bars + '</div></div>' +
+            (s ? '<div class="fivem-panel-count"><span class="fivem-count-current">' + c + '</span><span class="fivem-count-sep">/</span><span class="fivem-count-max">' + m + '</span></div>' +
+            '<p class="fivem-panel-label"><i class="fas fa-users"></i> Spelers online</p>' +
+            '<div class="fivem-bar-block"><div class="fivem-bar-track"><div class="fivem-bar-fill" style="' + fill + '"></div></div>' +
+            '<div class="fivem-bar-scale"><span>0</span><span>' + m + '</span></div></div>' : '<p class="fivem-offline-detail">' + (fivem.error || 'Offline') + '</p>') +
+            '</div><div class="fivem-hero-foot"><a class="fivem-hero-connect" href="' + (fivem.connectUrl || '#') + '"><i class="fas fa-play"></i> Verbinden in FiveM</a></div></div>';
+    };
+})();
+</script>
 </body>
 </html>

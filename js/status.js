@@ -248,7 +248,7 @@ function renderFivem(fivem) {
     }
 
     card.innerHTML =
-        '<div class="fivem-hero-card" data-ui="fivem-v4">' +
+        '<div class="fivem-hero-card" data-ui="fivem-v5">' +
         panelHtml +
         '<div class="fivem-hero-foot">' +
         '<a class="fivem-hero-connect" href="' +

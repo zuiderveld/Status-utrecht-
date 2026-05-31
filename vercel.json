@@ -2,9 +2,15 @@
   "installCommand": "npm install",
   "buildCommand": null,
   "outputDirectory": ".",
+  "rewrites": [
+    {
+      "source": "/api/discord-status",
+      "destination": "/api/status?discord=1"
+    }
+  ],
   "crons": [
     {
-      "path": "/api/discord-status",
+      "path": "/api/status?discord=1",
       "schedule": "*/5 * * * *"
     }
   ]

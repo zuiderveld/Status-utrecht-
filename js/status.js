@@ -50,10 +50,15 @@ function iconClass(name) {
     return map[name] || 'fa-circle';
 }
 
-function signalBarsHtml(percent) {
-    const lit = Math.min(4, Math.max(1, Math.ceil(percent / 25)));
+function signalBarsHtml(percent, online) {
+    if (!online) {
+        let off = '<div class="fivem-signal" aria-hidden="true">';
+        for (let i = 1; i <= 5; i++) off += '<span class="fivem-signal-bar"></span>';
+        return off + '</div>';
+    }
+    const lit = Math.min(5, Math.max(1, Math.ceil(percent / 20)));
     let html = '<div class="fivem-signal" aria-hidden="true">';
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 5; i++) {
         html += '<span class="fivem-signal-bar' + (i <= lit ? ' is-lit' : '') + '"></span>';
     }
     return html + '</div>';
@@ -77,7 +82,7 @@ function buildFivemPanelHtml(current, max) {
         '<i class="fas fa-wifi" aria-hidden="true"></i>' +
         '<span class="fivem-status-dot" aria-hidden="true"></span>' +
         '<span class="fivem-status-text">ONLINE</span></div>' +
-        signalBarsHtml(pctRounded) +
+        signalBarsHtml(pctRounded, true) +
         '</div>' +
         '<div class="fivem-panel-count" aria-label="' +
         safeCurrent +
@@ -112,9 +117,7 @@ function buildFivemOfflinePanel(error) {
         '<div class="fivem-panel-status fivem-panel-status--off">' +
         '<i class="fas fa-wifi" aria-hidden="true"></i>' +
         '<span class="fivem-status-text">OFFLINE</span></div>' +
-        '<div class="fivem-signal" aria-hidden="true">' +
-        '<span class="fivem-signal-bar"></span><span class="fivem-signal-bar"></span>' +
-        '<span class="fivem-signal-bar"></span><span class="fivem-signal-bar"></span></div>' +
+        signalBarsHtml(0, false) +
         '</div>' +
         '<p class="fivem-offline-detail">' +
         escapeHtml(error || 'Server niet bereikbaar') +
@@ -234,22 +237,28 @@ function renderFivem(fivem) {
             '</ul>';
     }
 
+    let detailsHtml = '';
+    if (playersHtml || metaBits.length) {
+        detailsHtml =
+            '<details class="fivem-hero-details">' +
+            '<summary>Spelers & serverinfo</summary>' +
+            (metaBits.length ? '<p style="margin:0.5rem 0 0">' + metaBits.join(' · ') + '</p>' : '') +
+            playersHtml +
+            '</details>';
+    }
+
     card.innerHTML =
-        '<article class="fivem-showcase" data-ui="fivem-v3">' +
+        '<div class="fivem-hero-card" data-ui="fivem-v4">' +
         panelHtml +
-        '<div class="fivem-showcase-extra">' +
-        '<p class="fivem-meta">' +
-        metaBits.join(' · ') +
-        '</p>' +
-        playersHtml +
-        '<div class="fivem-showcase-actions">' +
-        '<a class="fivem-connect-btn" href="' +
+        '<div class="fivem-hero-foot">' +
+        '<a class="fivem-hero-connect" href="' +
         escapeHtml(fivem.connectUrl) +
-        '">' +
-        '<i class="fas fa-play"></i> Verbinden in FiveM</a>' +
+        '"><i class="fas fa-play"></i> Verbinden in FiveM</a>' +
         '<span class="fivem-latency-tag">' +
         escapeHtml(formatLatency(fivem.latencyMs)) +
-        '</span></div></div></article>';
+        '</span></div>' +
+        detailsHtml +
+        '</div>';
 }
 
 async function loadStatus() {

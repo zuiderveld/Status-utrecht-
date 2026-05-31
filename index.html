@@ -4,11 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>URP Status</title>
-    <meta name="description" content="Status van de Utrecht Roleplay websites op Vercel.">
+    <meta name="description" content="Live status Utrecht Roleplay — FiveM server en websites.">
     <link rel="icon" type="image/png" href="/assets/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="/css/status.css?v=3">
-    <link rel="stylesheet" href="/css/fivem-panel.css?v=3">
+    <link rel="stylesheet" href="/css/status.css?v=4">
+    <style>
+        /* FiveM hero — altijd laden (ook als fivem-panel.css mist op Vercel) */
+        .fivem-hero { margin-bottom: 1.75rem; }
+        .fivem-hero .fivem-panel {
+            padding: 1.4rem 1.55rem 1.3rem;
+            border-radius: 20px;
+            background: #0b0e11;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+        }
+        .fivem-hero .fivem-panel-top {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.2rem;
+        }
+        .fivem-hero .fivem-panel-status {
+            display: flex; align-items: center; gap: 0.45rem;
+            font-size: 0.8rem; font-weight: 800; letter-spacing: 0.08em; color: #4ade80;
+        }
+        .fivem-hero .fivem-panel-status i { font-size: 1rem; color: #4ade80; }
+        .fivem-hero .fivem-status-dot {
+            width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.7);
+        }
+        .fivem-hero .fivem-panel-status--off { color: #f87171; }
+        .fivem-hero .fivem-panel-status--off i { color: #f87171; }
+        .fivem-hero .fivem-signal { display: flex; align-items: flex-end; gap: 3px; height: 20px; }
+        .fivem-hero .fivem-signal-bar {
+            width: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.1);
+        }
+        .fivem-hero .fivem-signal-bar:nth-child(1) { height: 5px; }
+        .fivem-hero .fivem-signal-bar:nth-child(2) { height: 8px; }
+        .fivem-hero .fivem-signal-bar:nth-child(3) { height: 11px; }
+        .fivem-hero .fivem-signal-bar:nth-child(4) { height: 14px; }
+        .fivem-hero .fivem-signal-bar:nth-child(5) { height: 18px; }
+        .fivem-hero .fivem-signal-bar.is-lit { background: rgba(74, 222, 128, 0.5); }
+        .fivem-hero .fivem-panel-count {
+            display: flex; align-items: baseline; gap: 0.1rem; line-height: 1; margin-bottom: 0.4rem;
+        }
+        .fivem-hero .fivem-count-current {
+            font-size: 3.6rem; font-weight: 800; color: #fff; letter-spacing: -0.03em;
+        }
+        .fivem-hero .fivem-count-sep {
+            font-size: 2.15rem; font-weight: 600; color: rgba(255, 255, 255, 0.32); margin: 0 0.1rem;
+        }
+        .fivem-hero .fivem-count-max { font-size: 2.15rem; font-weight: 600; color: #6b7280; }
+        .fivem-hero .fivem-panel-label {
+            display: flex; align-items: center; gap: 0.4rem;
+            font-size: 0.88rem; color: #6b7280; margin: 0 0 1.05rem;
+        }
+        .fivem-hero .fivem-bar-track {
+            height: 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.07); overflow: hidden;
+        }
+        .fivem-hero .fivem-bar-fill {
+            height: 100%; border-radius: 999px;
+            background: linear-gradient(90deg, #15803d, #22c55e, #4ade80);
+            box-shadow: 0 0 12px rgba(74, 222, 128, 0.4);
+            transition: width 0.5s ease;
+        }
+        .fivem-hero .fivem-bar-scale {
+            display: flex; justify-content: space-between;
+            font-size: 0.72rem; color: #6b7280; margin-top: 0.4rem;
+        }
+        .fivem-hero .fivem-offline-detail { color: #9ca3af; margin: 0.5rem 0 0; }
+        .fivem-hero-foot {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-top: 0.85rem;
+        }
+        .fivem-hero-connect {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.55rem 1.1rem; border-radius: 999px;
+            background: linear-gradient(135deg, #5865f2, #8b5cf6);
+            color: #fff; font-size: 0.85rem; font-weight: 700; text-decoration: none;
+        }
+        .fivem-hero-details {
+            margin-top: 0.75rem; font-size: 0.78rem; color: #6b7280;
+        }
+        .fivem-hero-details summary { cursor: pointer; color: #a78bfa; }
+        .fivem-hero .fivem-player-list {
+            list-style: none; margin: 0.5rem 0 0; padding: 0;
+            border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(0,0,0,0.35); max-height: 140px; overflow-y: auto;
+        }
+        .fivem-hero .fivem-player {
+            display: flex; justify-content: space-between; padding: 0.45rem 0.7rem;
+            font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .fivem-hero .fivem-player-name { color: #eef2ff; }
+        .fivem-hero .fivem-player-ping { color: #6b7280; font-size: 0.75rem; }
+    </style>
 </head>
 <body>
 <div class="status-bg"></div>
@@ -16,10 +103,15 @@
     <header class="status-header">
         <img src="/assets/favicon.png" alt="Utrecht Roleplay">
         <h1>URP <span>Status</span></h1>
-        <p>Websites, FiveM-server en live spelersaantal</p>
+        <p>Live FiveM-server en website-status</p>
     </header>
 
     <div id="statusError" class="status-error-box" role="alert"></div>
+
+    <!-- FiveM = hoofdkaart zoals referentie -->
+    <section id="fivemSection" class="fivem-hero" hidden>
+        <div id="fivemCard"></div>
+    </section>
 
     <div id="statusBanner" class="status-banner loading">
         <span class="status-dot-lg" aria-hidden="true"></span>
@@ -28,11 +120,6 @@
             <span id="bannerSub">Even geduld.</span>
             <span id="lastChecked" style="display:block;margin-top:0.35rem;font-size:0.8rem;color:#6b7280"></span>
         </div>
-    </div>
-
-    <div id="fivemSection" class="status-section" hidden>
-        <h2 class="status-section-title"><i class="fas fa-gamepad"></i> Game server</h2>
-        <div id="fivemCard"></div>
     </div>
 
     <div class="status-section">
@@ -47,6 +134,6 @@
         <a href="https://www.utrechtroleplay.eu">Utrecht Roleplay</a>
     </footer>
 </div>
-<script src="/js/status.js?v=3"></script>
+<script src="/js/status.js?v=4"></script>
 </body>
 </html>

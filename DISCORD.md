@@ -34,8 +34,10 @@ Deploy opnieuw na het opslaan.
 Open in je browser (vervang `JOUW_SECRET`):
 
 ```
-https://JOUW-STATUS-SITE.vercel.app/api/discord-status?secret=JOUW_SECRET
+https://JOUW-STATUS-SITE.vercel.app/api/status?discord=1&secret=JOUW_SECRET
 ```
+
+(Ook werkend: `/api/discord-status?secret=...` na redeploy met nieuwe `vercel.json`.)
 
 Of met curl:
 

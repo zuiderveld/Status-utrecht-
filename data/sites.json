@@ -1,0 +1,34 @@
+{
+  "sites": [
+    {
+      "id": "main",
+      "name": "Hoofdwebsite",
+      "description": "Utrecht Roleplay — publieke site",
+      "url": "https://www.utrechtroleplay.eu",
+      "checkPath": "/api/health",
+      "fallbackPath": "/",
+      "link": "https://www.utrechtroleplay.eu",
+      "icon": "globe"
+    },
+    {
+      "id": "overheid",
+      "name": "Overheid portaal",
+      "description": "Politie, KMar, Ambulance, Pechhulp",
+      "url": "https://overheid.utrechtroleplay.eu",
+      "checkPath": "/api/maintenance",
+      "fallbackPath": "/",
+      "link": "https://overheid.utrechtroleplay.eu/",
+      "icon": "landmark"
+    },
+    {
+      "id": "staff",
+      "name": "Staff portaal",
+      "description": "Regels, team en beheer voor staff",
+      "url": "https://staff.utrechtroleplay.eu",
+      "checkPath": "/api/site-data",
+      "fallbackPath": "/",
+      "link": "https://staff.utrechtroleplay.eu/",
+      "icon": "user-shield"
+    }
+  ]
+}

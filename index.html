@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URP Status</title>
+    <meta name="description" content="Status van de Utrecht Roleplay websites op Vercel.">
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/status.css">
+</head>
+<body>
+<div class="status-bg"></div>
+<div class="status-wrap">
+    <header class="status-header">
+        <img src="/assets/favicon.png" alt="Utrecht Roleplay">
+        <h1>URP <span>Status</span></h1>
+        <p>Websites, FiveM-server en live spelersaantal</p>
+    </header>
+
+    <div id="statusError" class="status-error-box" role="alert"></div>
+
+    <div id="statusBanner" class="status-banner loading">
+        <span class="status-dot-lg" aria-hidden="true"></span>
+        <div class="status-banner-text">
+            <strong id="bannerTitle">Status laden…</strong>
+            <span id="bannerSub">Even geduld.</span>
+            <span id="lastChecked" style="display:block;margin-top:0.35rem;font-size:0.8rem;color:#6b7280"></span>
+        </div>
+    </div>
+
+    <div id="fivemSection" class="status-section" hidden>
+        <h2 class="status-section-title"><i class="fas fa-gamepad"></i> Game server</h2>
+        <div id="fivemCard"></div>
+    </div>
+
+    <div class="status-section">
+        <h2 class="status-section-title"><i class="fas fa-globe"></i> Websites</h2>
+        <div id="statusList" class="status-list">
+            <p class="status-footer">Laden…</p>
+        </div>
+    </div>
+
+    <footer class="status-footer">
+        Vernieuwt elke 60 seconden ·
+        <a href="https://www.utrechtroleplay.eu">Utrecht Roleplay</a>
+    </footer>
+</div>
+<script src="/js/status.js"></script>
+</body>
+</html>
